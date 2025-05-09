@@ -1,0 +1,3 @@
+[submodule "dummyHooks/dynamicFees/nezLobinDirectional/lib/forge-std"]
+	path = dummyHooks/dynamicFees/nezLobinDirectional/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
