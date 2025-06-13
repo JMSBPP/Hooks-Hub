@@ -1,66 +1,50 @@
-## Foundry
+# ERC6909
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
-
-Foundry consists of:
-
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
+```json
+{
+    "purpose": "manage multiple ERC20 tokens under the same contract",
+    "requirements":[
+        {
+            "requirement": "Allowance-operator permission scheme",
+            "description": "enable control over token approvals"
+        }
+    ]
+}
 ```
+- Providers _balance modifications_ through _mint_ and _burn_ operations.
 
-### Test
+- Token deposits from **swappers** and/or **liquidity providers** are _stored_ on the `PoolManager`.
 
-```shell
-$ forge test
+## `PoolManager` as a client of `ERC6909`
+
+- `PoolManager` _mints_ `ERC6909` tokens representing _claim_ of _balances_
+- `user: = lp/swapper` _burns_ `ERC6909` tokens representing _paying_ `PoolManager` to _settle balances_.
+
+```solidity
+// ERC-20
+IERC20(tokenA).transferFrom(owner, poolManager, amount);
+
+// ERC-6909
+poolManager.burn(owner, Currency.wrap(tokenA).toId(), amount);
+
 ```
+## Servers:
 
-### Format
+### Spender:
+- An account that transfers tokens on behalf of amother account
 
-```shell
-$ forge fmt
-```
 
-### Gas Snapshots
+### Operator
 
-```shell
-$ forge snapshot
-```
+- An account that has unlimited _transfer_ permissions on **ALL** `tokenId`'s for another account
 
-### Anvil
+## Sevices
 
-```shell
-$ anvil
-```
 
-### Deploy
+### `mint`
+- Creation of amount tokens
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+### `burn`
 
-### Cast
+- Removal of amount tokens
 
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
