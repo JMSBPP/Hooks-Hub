@@ -1,6 +1,6 @@
-[submodule "dummyHooks/dynamicFees/nezLobinDirectional/lib/forge-std"]
-	path = dummyHooks/dynamicFees/nezLobinDirectional/lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
+[submodule "lib/awesome-uniswap-hooks"]
+	path = lib/awesome-uniswap-hooks
+	url = https://github.com/ora-io/awesome-uniswap-hooks
 [submodule "lib/forge-std"]
 	path = lib/forge-std
 	url = https://github.com/foundry-rs/forge-std

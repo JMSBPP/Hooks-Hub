@@ -1,50 +1,66 @@
-# ERC6909
+## Foundry
 
-```json
-{
-    "purpose": "manage multiple ERC20 tokens under the same contract",
-    "requirements":[
-        {
-            "requirement": "Allowance-operator permission scheme",
-            "description": "enable control over token approvals"
-        }
-    ]
-}
+**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+
+Foundry consists of:
+
+-   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
+-   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
+-   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
+-   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+
+## Documentation
+
+https://book.getfoundry.sh/
+
+## Usage
+
+### Build
+
+```shell
+$ forge build
 ```
-- Providers _balance modifications_ through _mint_ and _burn_ operations.
 
-- Token deposits from **swappers** and/or **liquidity providers** are _stored_ on the `PoolManager`.
+### Test
 
-## `PoolManager` as a client of `ERC6909`
-
-- `PoolManager` _mints_ `ERC6909` tokens representing _claim_ of _balances_
-- `user: = lp/swapper` _burns_ `ERC6909` tokens representing _paying_ `PoolManager` to _settle balances_.
-
-```solidity
-// ERC-20
-IERC20(tokenA).transferFrom(owner, poolManager, amount);
-
-// ERC-6909
-poolManager.burn(owner, Currency.wrap(tokenA).toId(), amount);
-
+```shell
+$ forge test
 ```
-## Servers:
 
-### Spender:
-- An account that transfers tokens on behalf of amother account
+### Format
 
+```shell
+$ forge fmt
+```
 
-### Operator
+### Gas Snapshots
 
-- An account that has unlimited _transfer_ permissions on **ALL** `tokenId`'s for another account
+```shell
+$ forge snapshot
+```
 
-## Sevices
+### Anvil
 
+```shell
+$ anvil
+```
 
-### `mint`
-- Creation of amount tokens
+### Deploy
 
-### `burn`
+```shell
+$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```
 
-- Removal of amount tokens
+### Cast
 
+```shell
+$ cast <subcommand>
+```
+
+### Help
+
+```shell
+$ forge --help
+$ anvil --help
+$ cast --help
+```
