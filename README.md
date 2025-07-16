@@ -1,66 +1,33 @@
-## Foundry
+# Workshop
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+For each of the excercises present a `hookName.md` with answering the following questions
 
-Foundry consists of:
+- **Question 1:** How many pools can call into this hook?
+  - One-Pool Only
+  - Non-Explicit Multiple-Pool Support
+- **Question 2:** Does this hook initiate calls to the PoolManager?
+  - On unlockCallback Data
+  - Skipped Callbacks
+  
+- **Question 3:** Does this hook call modifyLiquidity?
+  - Hooks That Own Positions
+  - Hooks That Mint Shares
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+- **Question 4:** Do the swap callbacks exhibit some kind of symmetry?
+  - Custom Swapping Logic
 
-## Documentation
+- **Question 5:** Does this hook support native tokens?
 
-https://book.getfoundry.sh/
+- **Question 6:** How is Access Control Implemented in Your Hook?
 
-## Usage
+  - Caller Verification and Hook Permissions
+  - Protecting Sensitive Functions
+  - Configuration and Upgradability
 
-### Build
 
-```shell
-$ forge build
-```
+## Create Custom Orders
+- Create a hook that only accepts pools of USDC/WETH and the only
+available operation is swapping WETH for USDC when the price is
+between 3000 - 3500
 
-### Test
 
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
