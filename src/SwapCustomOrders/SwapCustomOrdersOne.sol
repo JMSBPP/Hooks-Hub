@@ -76,7 +76,6 @@ pragma solidity ^0.8.26;
 //                  PriceLimitAlreadyExceeded.selector.revertWith(slot0Start.sqrtPriceX96(), params.sqrtPriceLimitX96);
 //               }
 import {BaseHook} from "v4-periphery/src/utils/BaseHook.sol";
-import {Exttload} from "v4-core/Exttload.sol";
 import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
 import {IHooks} from "v4-core/interfaces/IHooks.sol";
 import {Hooks} from "v4-core/libraries/Hooks.sol";
@@ -85,25 +84,17 @@ import {SwapParams} from "v4-core/types/PoolOperation.sol";
 import {BalanceDelta, BalanceDeltaLibrary} from "v4-core/types/BalanceDelta.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "v4-core/types/BeforeSwapDelta.sol";
 import {Constants} from "@uniswap/v4-core/test/utils/Constants.sol";
-import {Solution, SOLUTION_SLOT, SolutionLibrary} from "./types/Solution.sol";
-
-contract SolutionStorage is Exttload {}
+import {SolutionLibrary} from "./types/Solution.sol";
 
 contract SwapCustomOrdersOne is BaseHook {
     using BalanceDeltaLibrary for BalanceDelta;
     using SolutionLibrary for SwapParams;
-    using SolutionLibrary for Solution;
+    using SolutionLibrary for string;
     using SolutionLibrary for bytes32;
     event AnswerBeforeSwap(string _solution);
-    event AnserAfterSwap(string _solution);
+    event AnswerAfterSwap(string _solution);
 
-    SolutionStorage internal immutable solutionStorage;
-    constructor(
-        IPoolManager _manager,
-        SolutionStorage _solutionStorage
-    ) BaseHook(_manager) {
-        solutionStorage = _solutionStorage;
-    }
+    constructor(IPoolManager _manager) BaseHook(_manager) {}
     function _beforeInitialize(
         address,
         PoolKey calldata,
@@ -119,9 +110,9 @@ contract SwapCustomOrdersOne is BaseHook {
         SwapParams calldata swapParams,
         bytes calldata
     ) internal virtual override returns (bytes4, BeforeSwapDelta, uint24) {
-        Solution memory _solution = swapParams.getSolution();
-        // _solution.save();
-        // emit AnswerBeforeSwap(_solution.getSolution().solution);
+        string memory _solution = swapParams.getSolution();
+        _solution.toBytes32().store();
+        emit AnswerBeforeSwap(_solution);
         return (
             IHooks.beforeSwap.selector,
             BeforeSwapDeltaLibrary.ZERO_DELTA,
@@ -139,13 +130,9 @@ contract SwapCustomOrdersOne is BaseHook {
         // TODO: This function verifies if what said
         // on beforeSwap on the deltas is true
         // 1- Reads the solution from the transient storage
-        // Solution memory _solution = solutionStorage
-        //     .exttload(SOLUTION_SLOT)
-        //     .read();
-        return (
-            IHooks.afterSwap.selector,
-            BalanceDeltaLibrary.ZERO_DELTA.amount0()
-        );
+        string memory _solution = SolutionLibrary.load().toString();
+        emit AnswerAfterSwap(_solution);
+        return (IHooks.afterSwap.selector, 0);
     }
 
     function getHookPermissions()
