@@ -47,29 +47,130 @@ pragma solidity ^0.8.26;
 //     WETH/USDC  /                \
 // ==> zeroForOne                 |>0| -> "P_{USDC/WETH} -> How many ETH do I need to deposit buying exactly {amountSpecified} USDC"
 //               \
-//                \              |<0 | -> "P_{WETH/USDC} = 1/P_{USDC/WETH}"
+//                \              |<0 | -> "P_{WETH/USDC} = 1/P_{USDC/WETH}
+//                                                       -> How much ETH do I get for {amountSpecified} USDC?"
 //                 \             /
 //                  \           /
 //            "I am depositing {USDC}"
 //                              \
 //                               \
-//                              |->0| -> "I want to buy exactly {amountSpecified} ETH"
+//                              |->0| -> "P_{WETH/USDC} = 1/P_{USDC/WETH}
+//                                                      -> How many USDC do I need to deposit buying exactly {amountSpecified} ETH?"
 
-//
+// The above assertions can bee seen on the Pool.sol, swap flow:
 //          if (zeroForOne) {
 //             if (params.sqrtPriceLimitX96 >= slot0Start.sqrtPriceX96()) {
-
-// This can be solved by looking at the swap flow on Pool.sol
 //                 PriceLimitAlreadyExceeded.selector.revertWith(slot0Start.sqrtPriceX96(), params.sqrtPriceLimitX96);
-//             }
-// ==> max(P_y/x) >= P_y/x
+//              }
+//            < = >
+//               if( MAX (P_{USDC/WETH}) >= P_{USDC/WETH} ) {
+//                  PriceLimitAlreadyExceeded.selector.revertWith(slot0Start.sqrtPriceX96(), params.sqrtPriceLimitX96);
+//               }
 
-//             // Swaps can never occur at MIN_TICK, only at MIN_TICK + 1, except at initialization of a pool
-//             // Under certain circumstances outlined below, the tick will preemptively reach MIN_TICK without swapping there
 //             if (params.sqrtPriceLimitX96 <= TickMath.MIN_SQRT_PRICE) {
 //                 PriceLimitOutOfBounds.selector.revertWith(params.sqrtPriceLimitX96);
 //             }
-//         } else {
-//             if (params.sqrtPriceLimitX96 <= slot0Start.sqrtPriceX96()) {
-//                 PriceLimitAlreadyExceeded.selector.revertWith(slot0Start.sqrtPriceX96(), params.sqrtPriceLimitX96);
-//             }
+//         < = >
+//               if( MAX (P_{USDC/WETH}) <= 1/P_{USDC/WETH} ) {
+//         < = >     MAX (P_{USDC/WETH}) <= P_{WETH/USDC}
+//                  PriceLimitAlreadyExceeded.selector.revertWith(slot0Start.sqrtPriceX96(), params.sqrtPriceLimitX96);
+//               }
+import {BaseHook} from "v4-periphery/src/utils/BaseHook.sol";
+import {Exttload} from "v4-core/Exttload.sol";
+import {IPoolManager} from "v4-core/interfaces/IPoolManager.sol";
+import {IHooks} from "v4-core/interfaces/IHooks.sol";
+import {Hooks} from "v4-core/libraries/Hooks.sol";
+import {PoolKey} from "v4-core/types/PoolKey.sol";
+import {SwapParams} from "v4-core/types/PoolOperation.sol";
+import {BalanceDelta, BalanceDeltaLibrary} from "v4-core/types/BalanceDelta.sol";
+import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "v4-core/types/BeforeSwapDelta.sol";
+import {Constants} from "@uniswap/v4-core/test/utils/Constants.sol";
+import {Solution, SOLUTION_SLOT, SolutionLibrary} from "./types/Solution.sol";
+
+contract SolutionStorage is Exttload {}
+
+contract SwapCustomOrdersOne is BaseHook {
+    using BalanceDeltaLibrary for BalanceDelta;
+    using SolutionLibrary for SwapParams;
+    using SolutionLibrary for Solution;
+    using SolutionLibrary for bytes32;
+    event AnswerBeforeSwap(string _solution);
+    event AnserAfterSwap(string _solution);
+
+    SolutionStorage internal immutable solutionStorage;
+    constructor(
+        IPoolManager _manager,
+        SolutionStorage _solutionStorage
+    ) BaseHook(_manager) {
+        solutionStorage = _solutionStorage;
+    }
+    function _beforeInitialize(
+        address,
+        PoolKey calldata,
+        uint160
+    ) internal virtual override returns (bytes4) {
+        // TODO: Check that WETH is token0 and USDC is token1
+        // TODO: Not allow any pools other than WETH/USDC
+        return IHooks.beforeInitialize.selector;
+    }
+    function _beforeSwap(
+        address,
+        PoolKey calldata,
+        SwapParams calldata swapParams,
+        bytes calldata
+    ) internal virtual override returns (bytes4, BeforeSwapDelta, uint24) {
+        Solution memory _solution = swapParams.getSolution();
+        // _solution.save();
+        // emit AnswerBeforeSwap(_solution.getSolution().solution);
+        return (
+            IHooks.beforeSwap.selector,
+            BeforeSwapDeltaLibrary.ZERO_DELTA,
+            Constants.FEE_MEDIUM
+        );
+    }
+
+    function _afterSwap(
+        address,
+        PoolKey calldata,
+        SwapParams calldata,
+        BalanceDelta,
+        bytes calldata
+    ) internal virtual override returns (bytes4, int128) {
+        // TODO: This function verifies if what said
+        // on beforeSwap on the deltas is true
+        // 1- Reads the solution from the transient storage
+        // Solution memory _solution = solutionStorage
+        //     .exttload(SOLUTION_SLOT)
+        //     .read();
+        return (
+            IHooks.afterSwap.selector,
+            BalanceDeltaLibrary.ZERO_DELTA.amount0()
+        );
+    }
+
+    function getHookPermissions()
+        public
+        pure
+        virtual
+        override
+        returns (Hooks.Permissions memory)
+    {
+        return
+            Hooks.Permissions({
+                beforeInitialize: true,
+                afterInitialize: false,
+                beforeAddLiquidity: false,
+                afterAddLiquidity: false,
+                beforeRemoveLiquidity: false,
+                afterRemoveLiquidity: false,
+                beforeSwap: true,
+                afterSwap: true,
+                beforeDonate: false,
+                afterDonate: false,
+                beforeSwapReturnDelta: false,
+                afterSwapReturnDelta: false,
+                afterAddLiquidityReturnDelta: false,
+                afterRemoveLiquidityReturnDelta: false
+            });
+    }
+}

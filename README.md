@@ -1,5 +1,7 @@
 # Workshop
 
+## Rules
+
 For each of the excercises present a `hookName.md` with answering the following questions
 
 - **Question 1:** How many pools can call into this hook?
@@ -24,10 +26,18 @@ For each of the excercises present a `hookName.md` with answering the following 
   - Protecting Sensitive Functions
   - Configuration and Upgradability
 
+## Sections
 
-## Create Custom Orders
-- Create a hook that only accepts pools of USDC/WETH and the only
-available operation is swapping WETH for USDC when the price is
-between 3000 - 3500
+### Flash Accounting
+### ERC-6909
+### BeforeSwapDelta
+### AfterSwapReturnDelta
+### PositionManager
+### Pricing
+### SwapCustomOrders
+
+1. Create a hook that only accepts USDC and ETH and console logs a string describing the operation made by the swapper
+Then implement unit and fork testing to validate that the operation was indeed what the log says
+> BONUS perform tests using runTimeVerification locker
 
 
