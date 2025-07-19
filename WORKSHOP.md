@@ -26,15 +26,18 @@ For each of the excercises present a `hookName.md` with answering the following 
   - Protecting Sensitive Functions
   - Configuration and Upgradability
 
-## Sections
 
-### Flash Accounting
-### ERC-6909
-### BeforeSwapDelta
-### AfterSwapReturnDelta
-### PositionManager
-### Pricing
-### SwapCustomOrders
+## Create Pool
+### Basic
+
+## Flash Accounting
+## ERC-6909
+## BeforeSwapDelta
+## AfterSwapReturnDelta
+## PositionManager
+## Pricing
+## SwapCustomOrders
+
 
 1. Create a hook that only accepts USDC and ETH and console logs a string describing the operation made by the swapper
 Then implement unit and fork testing to validate that the operation was indeed what the log says

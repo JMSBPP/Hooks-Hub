@@ -7,3 +7,12 @@
 [submodule "lib/v4-periphery"]
 	path = lib/v4-periphery
 	url = https://github.com/Uniswap/v4-periphery
+[submodule "lib/v4-core"]
+	path = lib/v4-core
+	url = https://github.com/uniswap/v4-core
+[submodule "lib/flare-smart-contracts-v2"]
+	path = lib/flare-smart-contracts-v2
+	url = https://github.com/flare-foundation/flare-smart-contracts-v2
+[submodule "lib/flare-foundry-periphery-package"]
+	path = lib/flare-foundry-periphery-package
+	url = https://github.com/flare-foundation/flare-foundry-periphery-package
