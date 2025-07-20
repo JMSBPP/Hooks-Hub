@@ -16,3 +16,6 @@
 [submodule "lib/flare-foundry-periphery-package"]
 	path = lib/flare-foundry-periphery-package
 	url = https://github.com/flare-foundation/flare-foundry-periphery-package
+[submodule "lib/openzeppelin-contracts"]
+	path = lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
