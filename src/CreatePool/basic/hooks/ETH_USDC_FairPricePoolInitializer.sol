@@ -2,28 +2,28 @@
 pragma solidity ^0.8.26;
 
 import "v4-periphery/src/utils/BaseHook.sol";
-import {IBTC_USDC_FairPricePoolInitializer} from "../interfaces/IBTC_USDC_FairPricePoolInitializer.sol";
+import {IETH_USDC_FairPricePoolInitializer} from "../interfaces/IETH_USDC_FairPricePoolInitializer.sol";
 import {PoolId, PoolIdLibrary} from "@uniswap/v4-core/src/types/PoolId.sol";
 import {BeforeSwapDeltaLibrary} from "@uniswap/v4-core/src/types/BeforeSwapDelta.sol";
 import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
-import {IBTC_USDC_DataFeed} from "../interfaces/IBTC_USDC_DataFeed.sol";
+import {IETH_USDC_DataFeed} from "../interfaces/IETH_USDC_DataFeed.sol";
 import {SqrtPriceSafeCast} from "../libraries/SqrtPriceSafeCast.sol";
 // This Hooks enables the creation of a pool with fair price only
 // It Only implements the `beforeInitialize` and `afterInitiaize`
 // `beforeInialize` verifies that the pool has a external oracle
 // `afterInitialize` sets the pool price to the external oracle
 
-contract BTC_USDC_FairPricePoolInitializer is
+contract ETH_USDC_FairPricePoolInitializer is
     BaseHook,
-    IBTC_USDC_FairPricePoolInitializer
+    IETH_USDC_FairPricePoolInitializer
 {
     using PoolIdLibrary for PoolKey;
     using SqrtPriceSafeCast for uint256;
 
-    IBTC_USDC_DataFeed priceFeed;
+    IETH_USDC_DataFeed priceFeed;
     bool initialized;
 
-    address private WBTC;
+    address private WETH;
     address private USDC;
 
     mapping(PoolId pool => bool isValidPool) private validPools;
@@ -42,11 +42,11 @@ contract BTC_USDC_FairPricePoolInitializer is
     }
 
     function initialize(
-        address _wbtc,
+        address _weth,
         address _usdc,
-        IBTC_USDC_DataFeed _priceFeed
+        IETH_USDC_DataFeed _priceFeed
     ) external {
-        WBTC = _wbtc;
+        WETH = _weth;
         USDC = _usdc;
         priceFeed = _priceFeed;
         initialized = true;
@@ -59,14 +59,14 @@ contract BTC_USDC_FairPricePoolInitializer is
     ) internal virtual override onlyInitialized returns (bytes4) {
         // This checks that the is WBTC/USDC
         if (
-            (Currency.unwrap(poolKey.currency0) != WBTC &&
+            (Currency.unwrap(poolKey.currency0) != WETH &&
                 Currency.unwrap(poolKey.currency1) != USDC) ||
             (Currency.unwrap(poolKey.currency0) != USDC &&
-                Currency.unwrap(poolKey.currency1) != WBTC)
+                Currency.unwrap(poolKey.currency1) != WETH)
         ) {
-            revert InvalidPool__OnlyWBTC_USDCPoolAllowed();
+            revert InvalidPool__OnlyWETH_USDCPoolAllowed();
         } else {
-            (uint256 externalPrice, ) = priceFeed.get_BTC_USDC_Price_Wei();
+            (uint256 externalPrice, ) = priceFeed.get_ETH_USDC_Price_Wei();
 
             validPools[poolKey.toId()] = uint160(externalPrice) == initialPrice;
         }
@@ -136,10 +136,10 @@ contract BTC_USDC_FairPricePoolInitializer is
             });
     }
 
-    function getWTBC() external view onlyInitialized returns (address _wbtc) {
-        return WBTC;
+    function getWETH() external view onlyInitialized returns (address _weth) {
+        _weth = WETH;
     }
     function getUSDC() external view onlyInitialized returns (address _usdc) {
-        return USDC;
+        _usdc = USDC;
     }
 }

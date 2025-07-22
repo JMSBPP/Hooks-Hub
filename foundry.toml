@@ -4,3 +4,8 @@ out = "out"
 libs = ["lib"]
 solc-version = "0.8.26"
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+
+
+[rpc_endpoints]
+flare-coston2 = "https://coston2-api.flare.network/ext/C/rpc"
+unichain_sepolia = "https://sepolia.unichain.org"
