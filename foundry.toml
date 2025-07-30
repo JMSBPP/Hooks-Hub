@@ -1,6 +1,7 @@
 [profile.default]
-src = "src"
-out = "out"
-libs = ["lib"]
+src = "contratcs/src"
+out = "contracts/out"
+test = "contracts/test"
+libs = ["node_modules", "contracts/lib"]
 solc-version = "0.8.26"
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
